@@ -1,0 +1,944 @@
+/* 战棋推演沙盘 - 样式文件 */
+
+* {
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #2d2d2d;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.container {
+    background: #3a3a3a;
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+
+/* ========== 棋盘区域 ========== */
+.board-area {
+    background: #4e4e4e;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: inset 0 0 5px #2a2a2a, 0 5px 10px rgba(0,0,0,0.2);
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.canvas-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.size-control {
+    margin-bottom: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: #5a5a5a;
+    padding: 8px 12px;
+    border-radius: 40px;
+    justify-content: center;
+    width: 100%;
+}
+
+.size-control label {
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.size-control input {
+    width: 55px;
+    padding: 5px;
+    border-radius: 8px;
+    border: none;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.size-control button {
+    background: linear-gradient(180deg, #ffd54f 0%, #ffb300 100%);
+    border: none;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 14px;
+    white-space: nowrap;
+    color: #333;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+    box-shadow: 0 4px 0 #c79100, 0 5px 10px rgba(0,0,0,0.2);
+    position: relative;
+    top: 0;
+}
+
+.size-control button:active {
+    top: 3px;
+    box-shadow: 0 1px 0 #c79100, 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.size-control button:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+.size-control .expand-shrink {
+    background: linear-gradient(180deg, #66bb6a 0%, #43a047 100%);
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 0 #2e7d32, 0 5px 10px rgba(0,0,0,0.2);
+}
+
+.size-control .expand-shrink:active {
+    box-shadow: 0 1px 0 #2e7d32, 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.size-control .save-load {
+    background: linear-gradient(180deg, #42a5f5 0%, #1e88e5 100%);
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 0 #1565c0, 0 5px 10px rgba(0,0,0,0.2);
+}
+
+.size-control .save-load:active {
+    box-shadow: 0 1px 0 #1565c0, 0 2px 4px rgba(0,0,0,0.2);
+}
+
+canvas {
+    background-color: #f0e6d0;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    cursor: crosshair;
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+    max-width: 100%;
+}
+
+/* ========== 角色选择下拉框（悬浮在棋盘上方） ========== */
+.character-dropdown {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    max-height: 350px;
+    background: rgba(45, 45, 45, 0.98);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    z-index: 1000;
+    overflow: hidden;
+    border: 2px solid #5a5a5a;
+}
+
+.dropdown-header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: #3a3a3a;
+    border-bottom: 1px solid #555;
+    gap: 8px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: none;
+    background: #2a2a2a;
+    color: white;
+    font-size: 13px;
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: #888;
+}
+
+.close-dropdown {
+    background: #a12;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.close-dropdown:hover {
+    background: #c33;
+}
+
+.char-list {
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 5px;
+}
+
+.char-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.15s;
+    color: white;
+    font-size: 14px;
+}
+
+.char-item:hover {
+    background: #4a4a4a;
+}
+
+.char-item.selected {
+    background: #2c7da0;
+}
+
+.char-item .char-id {
+    color: #888;
+    font-size: 11px;
+    min-width: 35px;
+    font-family: monospace;
+}
+
+.char-item .char-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.char-item .char-speed {
+    color: #ffaa33;
+    font-size: 11px;
+    background: rgba(255, 170, 51, 0.15);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* ========== 右侧面板 ========== */
+.right-panel {
+    background: #2c2c2c;
+    border-radius: 20px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    color: white;
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+.right-panel::-webkit-scrollbar {
+    width: 4px;
+}
+
+.right-panel::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+.section {
+    background: #3e3e3e;
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 0;
+}
+
+.section h3 {
+    margin: 0 0 10px 0;
+    font-size: 0.9rem;
+    text-align: center;
+    border-bottom: 1px solid #555;
+    padding-bottom: 8px;
+}
+
+/* ========== 棋子仓库 - 方形按钮 ========== */
+.pieces-selector {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.team-btn {
+    flex: 1;
+    min-height: 70px;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+}
+
+.team-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.team-btn.self {
+    background: linear-gradient(135deg, #ff8a7a 0%, #a12 100%);
+    border-color: #ff6b5b;
+}
+
+.team-btn.custom {
+    background: linear-gradient(135deg, #9c9c9c 0%, #555 100%);
+    border-color: #aaa;
+}
+
+.team-btn.enemy {
+    background: linear-gradient(135deg, #8aaeff 0%, #124 100%);
+    border-color: #6a9eff;
+}
+
+.team-btn.selected {
+    box-shadow: inset 0 0 0 3px gold, 0 6px 20px rgba(255, 215, 0, 0.3);
+}
+
+.team-btn.holding {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: inset 0 0 0 3px gold, 0 6px 20px rgba(255, 215, 0, 0.3); }
+    50% { box-shadow: inset 0 0 0 4px gold, 0 8px 25px rgba(255, 215, 0, 0.5); }
+}
+
+.team-icon {
+    font-size: 22px;
+}
+
+.team-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.selected-info {
+    font-size: 0.75rem;
+    text-align: center;
+    margin-top: 8px;
+    color: #ffaa33;
+    min-height: 36px;
+    line-height: 1.4;
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
+/* ========== 弹窗样式 ========== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: #3a3a3a;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 320px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #4a4a4a;
+    border-bottom: 1px solid #555;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: white;
+    font-size: 16px;
+}
+
+.close-modal {
+    background: #a12;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.close-modal:hover {
+    background: #c33;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    color: #ccc;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background: #2a2a2a;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #2c7da0;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    background: #333;
+    border-top: 1px solid #444;
+}
+
+.btn-cancel, .btn-confirm {
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-cancel {
+    background: #555;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: #666;
+}
+
+.btn-confirm {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-confirm:hover {
+    background: #5cbf60;
+}
+
+/* ========== 推演操作区 - 3D按钮网格布局 ========== */
+.play-action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.play-action-grid .btn-3d {
+    width: 100%;
+    padding: 10px 6px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+    transition: all 0.15s ease;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+    position: relative;
+    top: 0;
+}
+
+.play-action-grid .btn-3d:active {
+    top: 3px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.play-action-grid .btn-3d:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+}
+
+.play-action-grid .btn-standby {
+    background: linear-gradient(180deg, #6a9a6a 0%, #4a7a4a 100%);
+}
+
+.play-action-grid .btn-speed {
+    background: linear-gradient(180deg, #8a6aaa 0%, #6a4a8a 100%);
+}
+
+.play-action-grid .btn-clear-path {
+    background: linear-gradient(180deg, #7a8aaa 0%, #5a6a8a 100%);
+}
+
+.play-action-grid .btn-reset {
+    background: linear-gradient(180deg, #c44 0%, #a22 100%);
+}
+
+.play-action-grid .btn-knockback {
+    background: linear-gradient(180deg, #ff8c42 0%, #e65c00 100%);
+}
+
+.play-action-grid .btn-swap {
+    background: linear-gradient(180deg, #4db6ac 0%, #00897b 100%);
+}
+
+.play-action-grid .btn-remove {
+    background: linear-gradient(180deg, #c55 0%, #933 100%);
+    grid-column: span 2;
+}
+
+/* 布局阶段移除棋子按钮 */
+.btn-3d.btn-remove {
+    background: linear-gradient(180deg, #c55 0%, #933 100%);
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+    transition: all 0.15s ease;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+    position: relative;
+    top: 0;
+}
+
+.btn-3d.btn-remove:active {
+    top: 3px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btn-3d.btn-remove:hover {
+    filter: brightness(1.15);
+}
+
+/* 调速模式闪烁提示 */
+.speed-adjust-hint {
+    animation: speedHintFlash 0.333s ease-in-out 6;
+}
+
+@keyframes speedHintFlash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ========== 地形工具 ========== */
+/* 统一地形绘制与地形标记按钮的间距、样式，完全一致 */
+.section:has(.terrain-tools) {
+    margin-top: 4px;
+    padding-top: 12px;
+}
+
+.terrain-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;          /* 统一按钮垂直间距 */
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid #555;
+}
+
+.terrain-tools .terrain-btn,
+.terrain-buttons .terrain-btn {
+    background: linear-gradient(180deg, #6f6f6f 0%, #4f4f4f 100%);
+    border: none;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+    position: relative;
+    top: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.terrain-btn:active {
+    top: 3px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.terrain-btn:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+
+.terrain-btn.active {
+    background: linear-gradient(180deg, #ffbb44 0%, #dd9911 100%);
+    color: #2c2c2c;
+    box-shadow: 0 0 0 2px white, 0 4px 0 rgba(0,0,0,0.3);
+}
+
+.mode-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.mode-btn {
+    flex: 1;
+    background: linear-gradient(180deg, #6a6a6a 0%, #4a4a4a 100%);
+    border: none;
+    padding: 10px 6px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    font-size: 14px;
+    transition: all 0.15s ease;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+    position: relative;
+    top: 0;
+}
+
+.mode-btn:active {
+    top: 3px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.mode-btn:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+
+.mode-btn.active {
+    background: linear-gradient(180deg, #3a9ac5 0%, #2a6a8a 100%);
+    box-shadow: 0 0 0 2px white, 0 4px 0 rgba(0,0,0,0.3);
+}
+
+.mode-btn.active:active {
+    box-shadow: 0 0 0 2px white, 0 1px 0 rgba(0,0,0,0.3);
+}
+
+.info-text {
+    font-size: 0.7rem;
+    text-align: center;
+    margin-top: 8px;
+    background: #222;
+    padding: 4px;
+    border-radius: 20px;
+}
+
+.freehand-mode {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #3e3e3e;
+    padding: 6px;
+    border-radius: 40px;
+}
+
+button.clear-btn {
+    background: #a12;
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+/* ========== 阶段内容切换 ========== */
+.phase-section {
+    background: #4a4a4a;
+    border: 2px solid #5a5a5a;
+}
+
+#dynamicContent {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.phase-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* ========== 日志区域 ========== */
+.log-section {
+    background: #2c2c2c;
+    border-radius: 20px;
+    padding: 12px;
+    width: 100%;
+    color: white;
+    box-sizing: border-box;
+}
+
+.log-list {
+    max-height: 180px;
+    overflow-y: auto;
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 8px;
+    font-size: 12px;
+}
+
+.log-entry {
+    border-bottom: 1px solid #555;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.log-entry .remark {
+    margin-top: 4px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.log-entry .remark input {
+    flex: 1;
+    padding: 4px;
+    border-radius: 6px;
+    border: none;
+    font-size: 12px;
+}
+
+.log-entry .remark button {
+    background: linear-gradient(180deg, #66bb6a 0%, #43a047 100%);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 0 #2e7d32, 0 4px 6px rgba(0,0,0,0.15);
+    position: relative;
+    top: 0;
+    transition: all 0.1s ease;
+}
+
+.log-entry .remark button:active {
+    top: 2px;
+    box-shadow: 0 1px 0 #2e7d32, 0 2px 3px rgba(0,0,0,0.15);
+}
+
+.log-entry .rollback-btn {
+    background: linear-gradient(180deg, #ffa726 0%, #f57c00 100%);
+    margin-left: 6px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 0 #e65100, 0 4px 6px rgba(0,0,0,0.15);
+    position: relative;
+    top: 0;
+    transition: all 0.1s ease;
+}
+
+.log-entry .rollback-btn:active {
+    top: 2px;
+    box-shadow: 0 1px 0 #e65100, 0 2px 3px rgba(0,0,0,0.15);
+}
+
+.log-entry .view-btn {
+    background: linear-gradient(180deg, #42a5f5 0%, #1e88e5 100%);
+    margin-left: 4px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 0 #1565c0, 0 4px 6px rgba(0,0,0,0.15);
+    position: relative;
+    top: 0;
+    transition: all 0.1s ease;
+}
+
+.log-entry .view-btn:active {
+    top: 2px;
+    box-shadow: 0 1px 0 #1565c0, 0 2px 3px rgba(0,0,0,0.15);
+}
+
+.return-btn {
+    background: #4caf50;
+    margin-top: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* ========== 响应式设计 ========== */
+@media (max-width: 700px) {
+    .app {
+        padding: 8px;
+    }
+    .container {
+        flex-direction: column;
+        padding: 12px;
+    }
+    .right-panel {
+        width: 100%;
+        min-width: unset;
+    }
+    .team-btn {
+        min-height: 60px;
+    }
+    .team-icon {
+        font-size: 18px;
+    }
+    .team-label {
+        font-size: 11px;
+    }
+    .size-control button {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+    .size-control {
+        justify-content: center;
+    }
+    .character-dropdown {
+        width: 90%;
+        max-width: 260px;
+    }
+}
+
+/* ===== 只调整按钮垂直间距，不改变按钮尺寸 ===== */
+/* 强制两个地形工具容器使用相同的 gap 值，并清除按钮的上下外边距 */
+#terrainTools,
+#playTerrainTools {
+    gap: 8px !important;
+}
+
+#terrainTools .terrain-btn,
+#playTerrainTools .terrain-btn {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* 终极方案：使用 margin-bottom 统一按钮间距，不受父级影响 */
+.terrain-tools {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;  /* 完全禁用 gap */
+}
+
+.terrain-tools .terrain-btn {
+    margin: 0 0 8px 0 !important;  /* 下边距统一为 8px */
+}
+
+.terrain-tools .terrain-btn:last-child {
+    margin-bottom: 0 !important;    /* 最后一个按钮无下边距 */
+}
+

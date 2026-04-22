@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>战棋推演沙盘 - 完整版</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+    <div class="container">
+        <!-- 棋盘区域 -->
+        <div class="board-area">
+            <div class="size-control">
+                <label>棋盘大小:</label>
+                <input type="number" id="rowsInput" value="15" min="3" max="20">
+                <span style="color:white">x</span>
+                <input type="number" id="colsInput" value="15" min="3" max="20">
+                <button id="resizeBtn">生成棋盘</button>
+                <button id="expandBtn" class="expand-shrink">扩大棋盘</button>
+                <button id="shrinkBtn" class="expand-shrink">减小棋盘</button>
+                <button id="saveBtn" class="save-load">保存棋盘</button>
+                <button id="loadBtn" class="save-load">读取棋盘</button>
+            </div>
+            
+            <!-- 棋盘容器（用于定位悬浮下拉框） -->
+            <div class="canvas-container">
+                <canvas id="boardCanvas" width="500" height="500"></canvas>
+                
+                <!-- 角色选择下拉框 - 悬浮在棋盘上方 -->
+                <div class="character-dropdown" id="charDropdown" style="display:none;">
+                    <div class="dropdown-header">
+                        <input type="text" class="search-input" placeholder="🔍 搜索角色(编号/名字)..." id="charSearch">
+                        <button class="close-dropdown" id="closeDropdown">✕</button>
+                    </div>
+                    <div class="char-list" id="charList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧面板 -->
+        <div class="right-panel">
+            <!-- 阶段控制 - 始终显示 -->
+            <div class="section phase-section">
+                <h3>⚙️ 阶段</h3>
+                <div class="mode-buttons">
+                    <button class="mode-btn active" data-mode="layout">🏗️ 布局</button>
+                    <button class="mode-btn" data-mode="play">🎲 推演</button>
+                </div>
+            </div>
+
+            <!-- 动态内容区 -->
+            <div id="dynamicContent">
+                <!-- 布局阶段内容 -->
+                <div id="layoutContent" class="phase-content">
+                    <!-- 棋子仓库 -->
+                    <div class="section">
+                        <h3>🎲 棋子仓库</h3>
+                        <div class="pieces-selector">
+                            <div class="team-btn self" id="selfBtn" data-team="self">
+                                <span class="team-icon">🛡️</span>
+                                <span class="team-label">己方</span>
+                            </div>
+                            <div class="team-btn custom" id="customBtn" data-team="custom">
+                                <span class="team-icon">⚙️</span>
+                                <span class="team-label">自定义</span>
+                            </div>
+                            <div class="team-btn enemy" id="enemyBtn" data-team="enemy">
+                                <span class="team-icon">⚔️</span>
+                                <span class="team-label">敌方</span>
+                            </div>
+                        </div>
+                        <div class="selected-info" id="selectedInfo">⚡ 点击按钮选择角色类型</div>
+                        <button id="removePieceLayoutBtn" class="btn-3d btn-remove" style="margin-top: 8px; width: 100%;">🗑️ 移除棋子</button>
+                    </div>
+
+                    <!-- 地形绘制 -->
+                    <div class="section">
+                        <h3>⛰️ 地形绘制</h3>
+                        <div class="terrain-tools" id="terrainTools">
+                            <button class="terrain-btn" data-terrain="clear">🧽 清除</button>
+                            <button class="terrain-btn" data-terrain="water">💧 水 (需跳跃)</button>
+                            <button class="terrain-btn" data-terrain="wall">🧱 墙</button>
+                            <button class="terrain-btn" data-terrain="trap">⚠️ 陷阱</button>
+                            <button class="terrain-btn" data-terrain="box">📦 箱子</button>
+                            <button id="addCustomBtn" class="terrain-btn" style="background:#9c27b0;">➕ 自定义</button>
+                        </div>
+                        <div class="info-text">点击/拖拽设置地形。自定义地形可通行。</div>
+                    </div>
+                </div>
+
+                <!-- 推演阶段内容 -->
+                <div id="playContent" class="phase-content" style="display:none;">
+                    <!-- 推演操作 -->
+                    <div class="section">
+                        <h3>🎮 推演操作</h3>
+                        <div class="freehand-mode">
+                            <input type="checkbox" id="freehandModeCheckbox">
+                            <label for="freehandModeCheckbox">✏️ 手绘路径模式</label>
+                        </div>
+                        <div class="info-text" id="modeHint">
+                            自动寻路模式：拖拽棋子到目标点
+                        </div>
+                        <div class="play-action-grid">
+                            <button id="standbyBtn" class="btn-3d btn-standby">⏸️ 行动结束</button>
+                            <button id="speedAdjustBtn" class="btn-3d btn-speed">⚡ 调速</button>
+                            <button id="clearPathAndGhostsBtn" class="btn-3d btn-clear-path">🗑️ 清除路径</button>
+                            <button id="clearAllRecordsBtn" class="btn-3d btn-reset">📋 重置推演</button>
+                            <button id="knockbackBtn" class="btn-3d btn-knockback">💥 击退</button>
+                            <button id="swapBtn" class="btn-3d btn-swap">🔄 换位</button>
+                            <button id="removePiecePlayBtn" class="btn-3d btn-remove">🗑️ 移除棋子</button>
+                        </div>
+                        <div id="viewReturnArea" style="text-align: center; margin-top: 5px;"></div>
+                    </div>
+                    
+                    <!-- 推演地形标记 -->
+                    <div class="section">
+                        <h3>📝 地形标记</h3>
+                        <div class="terrain-tools" id="playTerrainTools">
+                            <button class="terrain-btn" data-play-terrain="clear">🧽 消除标记</button>
+                            <button class="terrain-btn" data-play-terrain="trap">⚠️ 陷阱</button>
+                            <button class="terrain-btn" data-play-terrain="box">📦 箱子</button>
+                            <button class="terrain-btn" data-play-terrain="flag">🚩 旗子</button>
+                            <button class="terrain-btn" data-play-terrain="fire">🔥 火</button>
+                            <button class="terrain-btn" data-play-terrain="ice">❄️ 冰</button>
+                            <button id="addPlayCustomBtn" class="terrain-btn" style="background:#9c27b0;">➕ 自定义</button>
+                        </div>
+                        <div class="info-text">选择后点击/拖拽布置，布置后自动取消</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 移动记录 -->
+    <div class="log-section">
+        <h3>📜 移动记录</h3>
+        <div id="logList" class="log-list">
+            <div style="color: #aaa; text-align: center;">暂无移动记录</div>
+        </div>
+    </div>
+</div>
+
+<!-- 调速对话框 -->
+<div class="modal" id="speedAdjustModal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>⚡ 调速</h3>
+            <button class="close-modal" id="closeSpeedAdjustModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>选择速度值：</label>
+                <select id="speedAdjustSelect" style="width:100%; padding:8px; border-radius:6px; border:1px solid #444; background:#2a2a3a; color:#fff;">
+                    <option value="50">+速度1 (+50)</option>
+                    <option value="100">+速度2 (+100)</option>
+                    <option value="150">+速度3 (+150)</option>
+                    <option value="200">+速度4 (+200)</option>
+                    <option value="-50">-速度1 (-50)</option>
+                    <option value="-100">-速度2 (-100)</option>
+                    <option value="custom">手动输入...</option>
+                </select>
+            </div>
+            <div class="form-group" id="speedCustomValueGroup" style="display:none;">
+                <label>自定义速度值：</label>
+                <input type="number" id="speedCustomValue" placeholder="请输入速度值（可正负）" value="50">
+            </div>
+            <div class="form-group">
+                <label>生效次数：</label>
+                <input type="number" id="speedAdjustTurnsInput" value="2" min="1" max="99" style="width:60px;">
+                <span style="color:#aaa; font-size:12px;">该棋子行动N次后失效</span>
+            </div>
+            <div class="form-group" style="color:#aaa; font-size:12px; line-height:1.5;">
+                <p>确定后请点击棋盘上的一个棋子</p>
+                <p>赋予自身时当前行动不计入生效次数</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" id="cancelSpeedAdjust">取消</button>
+            <button class="btn-confirm" id="confirmSpeedAdjust">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- 自定义角色弹窗 -->
+<div class="modal" id="customModal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">添加角色</h3>
+            <button class="close-modal" id="closeModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>角色名称：</label>
+                <input type="text" id="customName" placeholder="请输入角色名">
+            </div>
+            <div class="form-group">
+                <label>速度值：</label>
+                <input type="number" id="customSpeed" placeholder="请输入速度值" min="1" max="999">
+            </div>
+            <div class="form-group checkbox-group" id="sizeOptionGroup" style="display:none;">
+                <label>
+                    <input type="checkbox" id="isLargeSize">
+                    <span>占位 3×3 格子</span>
+                </label>
+                <label style="margin-left:16px;">
+                    <input type="checkbox" id="enemyShowFirstChar" checked>
+                    <span>显示第一个字</span>
+                </label>
+            </div>
+            <div class="form-group checkbox-group" id="showCharOptionGroup" style="display:none;">
+                <label>
+                    <input type="checkbox" id="showFirstChar" checked>
+                    <span>显示第一个字</span>
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" id="cancelCustom">取消</button>
+            <button class="btn-confirm" id="confirmCustom">确定</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/characters.js"></script>
+<script src="js/state.js"></script>
+<script src="js/movement.js"></script>
+<script src="js/piecePlacement.js"></script>
+<script src="js/terrain.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/input.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
