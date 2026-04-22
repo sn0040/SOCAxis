@@ -16,7 +16,7 @@ const State = {
     ghosts: [],
     
     // 当前状态
-    holdingState: null,  // { type: 'self'|'custom'|'enemy', character: {...} }
+    holdingState: null,
     currentMode: 'layout',
     activeTerrain: 'clear',
     
@@ -38,6 +38,7 @@ const State = {
     
     // 自定义地形
     customTerrains: [],
+    customPlayTerrains: [],   // 推演模式自定义标记列表
     
     // 拖拽状态
     isDragging: false,
@@ -65,54 +66,53 @@ const State = {
     
     // 推演状态
     battleState: {
-        isActive: false,        // 是否处于推演中
-        initialSnapshot: null,  // 推演开始时的快照
-        shouldPreserve: false   // 是否保留推演步骤
+        isActive: false,
+        initialSnapshot: null,
+        shouldPreserve: false
     },
     
-    // 推演地形（仅视觉标记，不影响移动）
+    // 推演地形
     playTerrain: [],
-    activePlayTerrain: null,  // null表示没有选择地形
+    activePlayTerrain: null,
     
     // 调速系统
-    speedAdjustMode: false,       // 是否处于调速选棋子模式
-    speedAdjustValue: 0,          // 调速值（如+50、-100）
-    speedAdjustTurns: 2,          // 调速生效次数
-    speedAdjustSourcePiece: null, // 调速发起方棋子（用于日志）
-    speedAdjustHintTimer: null,   // 调速提示闪烁定时器
-    speedAdjustHintVisible: false, // 调速提示当前是否可见
+    speedAdjustMode: false,
+    speedAdjustValue: 0,
+    speedAdjustTurns: 2,
+    speedAdjustSourcePiece: null,
+    speedAdjustHintTimer: null,
+    speedAdjustHintVisible: false,
     
-    // 当前回合行动棋子（调速等副操作不改变它，只有移动/待机后才清除）
-    currentTurnActor: null,  // { row, col }
+    // 当前回合行动棋子
+    currentTurnActor: null,
     
     // 移除棋子模式
-    removePieceMode: false,       // 推演阶段是否处于移除棋子模式
-    removePieceModeLayout: false, // 布局阶段是否处于移除棋子模式
+    removePieceMode: false,
+    removePieceModeLayout: false,
     
     // 地形绘制状态
     isTerrainPainting: false,
-    terrainPaintMode: 'layout', // 'layout' 或 'play'
+    terrainPaintMode: 'layout',
     
     // 鼠标位置追踪
     lastMouseX: 0,
     lastMouseY: 0,
     
-    // ========== 新增：击退和换位相关状态 ==========
-    knockbackMode: false,          // 是否处于击退模式
-    swapMode: false,               // 是否处于换位模式
-    knockbackTargetPiece: null,    // 击退模式选中的目标棋子
-    isKnockbackDragging: false,    // 击退模式是否正在拖拽方向
-    knockbackDragStart: null,      // 击退拖拽起点（目标棋子坐标）
-    knockbackDragCurrent: null,    // 击退拖拽当前点（方向指示）
-    swapFirstPiece: null,          // 换位模式第一个选中的棋子
-    // 视觉反馈
-    toastMessage: '',              // 临时提示文字
-    toastTimeout: null,            // 提示消失定时器
-    highlightedPiece: null,        // 当前高亮的棋子（用于换位/击退）
-    knockbackPreviewPath: [],      // 击退预览路径点数组
+    // 击退和换位相关状态
+    knockbackMode: false,
+    swapMode: false,
+    knockbackTargetPiece: null,
+    isKnockbackDragging: false,
+    knockbackDragStart: null,
+    knockbackDragCurrent: null,
+    swapFirstPiece: null,
+    toastMessage: '',
+    toastTimeout: null,
+    highlightedPiece: null,
+    knockbackPreviewPath: [],
     
-    // ========== 新增：保存推演状态（用于切换模式时保留） ==========
-    savedPlayState: null,          // 存储从推演切换到布局时保存的推演状态
+    // 保存推演状态（用于切换模式）
+    savedPlayState: null,
     
     // 初始化
     init() {
@@ -144,7 +144,6 @@ const State = {
         this.removePieceMode = false;
         this.removePieceModeLayout = false;
         
-        // 初始化击退和换位状态
         this.knockbackMode = false;
         this.swapMode = false;
         this.knockbackTargetPiece = null;
@@ -156,9 +155,8 @@ const State = {
         this.toastTimeout = null;
         this.highlightedPiece = null;
         this.knockbackPreviewPath = [];
-        
-        // 初始化保存推演状态
         this.savedPlayState = null;
+        this.customPlayTerrains = [];
     },
     
     createEmptyTerrain(r, c) {

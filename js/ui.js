@@ -65,9 +65,17 @@ const UI = {
             speedCustomValueGroup: document.getElementById('speedCustomValueGroup'),
             speedCustomValue: document.getElementById('speedCustomValue'),
             speedAdjustTurnsInput: document.getElementById('speedAdjustTurnsInput'),
-            // 击退和换位按钮
             knockbackBtn: document.getElementById('knockbackBtn'),
-            swapBtn: document.getElementById('swapBtn')
+            swapBtn: document.getElementById('swapBtn'),
+            // 自定义地形模态框
+            customTerrainModal: document.getElementById('customTerrainModal'),
+            customTerrainModalTitle: document.getElementById('customTerrainModalTitle'),
+            terrainName: document.getElementById('terrainName'),
+            terrainBgColor: document.getElementById('terrainBgColor'),
+            terrainTextColor: document.getElementById('terrainTextColor'),
+            closeTerrainModal: document.getElementById('closeTerrainModal'),
+            cancelTerrainModal: document.getElementById('cancelTerrainModal'),
+            confirmTerrainModal: document.getElementById('confirmTerrainModal')
         };
     },
 
@@ -178,14 +186,13 @@ const UI = {
             });
         });
 
-        // ========== 击退按钮 ==========
+        // 击退按钮
         if (el.knockbackBtn) {
             el.knockbackBtn.addEventListener('click', () => {
                 if (State.currentMode !== 'play') {
                     this.showToast('仅在推演模式下可用');
                     return;
                 }
-                // 退出其他模式
                 State.swapMode = false;
                 State.swapFirstPiece = null;
                 State.knockbackMode = true;
@@ -201,7 +208,7 @@ const UI = {
             });
         }
 
-        // ========== 换位按钮 ==========
+        // 换位按钮
         if (el.swapBtn) {
             el.swapBtn.addEventListener('click', () => {
                 if (State.currentMode !== 'play') {
@@ -217,72 +224,59 @@ const UI = {
                 Renderer.drawBoard();
             });
         }
+
+        // 自定义地形模态框事件
+        if (el.closeTerrainModal) {
+            el.closeTerrainModal.addEventListener('click', () => this.hideCustomTerrainModal());
+            el.cancelTerrainModal.addEventListener('click', () => this.hideCustomTerrainModal());
+            el.confirmTerrainModal.addEventListener('click', () => this.confirmCustomTerrain());
+        }
     },
     
-    // ========== 切换模式（核心修改） ==========
+    // 切换模式（已包含保留/恢复逻辑）
     switchMode(mode) {
         const previousMode = State.currentMode;
         
-        // 从推演切换到布局
         if (previousMode === 'play' && mode === 'layout') {
-            // 检查是否有推演痕迹（移动记录或路径/幽灵）
             const hasPlayTraces = State.moveLogs.length > 0 || State.pathLines.length > 0 || State.ghosts.length > 0;
             if (hasPlayTraces) {
-                const confirmMsg = '是否保留当前推演步骤？\n选择“确定”保留，切换回推演时可继续；\n选择“取消”将放弃当前推演，恢复到布局初始状态。';
-                const keep = confirm(confirmMsg);
+                const keep = confirm('是否保留当前推演步骤？\n选择“确定”保留，切换回推演时可继续；\n选择“取消”将放弃当前推演，恢复到布局初始状态。');
                 if (keep) {
-                    // 保存当前推演状态
                     Game.savePlayState();
                 } else {
-                    // 不保留：清除推演痕迹并重置到布局初始状态
                     Game.clearPlayTracesAndReset();
-                    // 同时清除可能已保存的状态
                     State.savedPlayState = null;
                 }
             }
-            // 切换到布局模式前，清除当前显示的推演痕迹（路径、幽灵等）
-            // 注意：如果保留了状态，痕迹已在保存的 snapshot 中，但布局模式不应显示，所以直接清空显示
             State.pathLines = [];
             State.ghosts = [];
             Renderer.drawBoard();
         }
         
-        // 从布局切换到推演
         if (previousMode === 'layout' && mode === 'play') {
             if (State.savedPlayState) {
-                const restoreMsg = '检测到之前保存的推演步骤，是否恢复？\n选择“确定”继续上次推演；\n选择“取消”开始新的推演（基于当前布局）。';
-                const restore = confirm(restoreMsg);
+                const restore = confirm('检测到之前保存的推演步骤，是否恢复？\n选择“确定”继续上次推演；\n选择“取消”开始新的推演（基于当前布局）。');
                 if (restore) {
                     Game.restorePlayState();
-                    // 恢复后重新计算行动顺序
                     Movement.calculateActionOrders();
-                    // 设置模式并完成切换，避免后续重复初始化
                     State.currentMode = mode;
                     this.updateModeUI(mode);
                     this.setModeDisplay(mode);
-                    // 清除其他模式状态
                     this.clearModeStates();
                     Renderer.drawBoard();
                     return;
                 } else {
-                    // 不恢复，清除保存的状态
                     State.savedPlayState = null;
-                    // 基于当前布局重置初始快照
                     Game.setInitialSnapshot();
                 }
             } else {
-                // 没有保存的状态，基于当前布局设置初始快照
                 Game.setInitialSnapshot();
             }
         }
         
-        // 通用模式切换逻辑（清除模式相关状态、更新UI等）
         State.currentMode = mode;
-        
-        // 清除所有模式状态（击退、换位、调速、移除棋子等）
         this.clearModeStates();
         
-        // 更新按钮状态
         this.elements.modeButtons.forEach(btn => {
             if (btn.dataset.mode === mode) {
                 btn.classList.add('active');
@@ -291,10 +285,10 @@ const UI = {
             }
         });
         
-        // 设置初始地形选择（弹起状态）
         if (mode === 'layout') {
             State.activeTerrain = null;
-            document.querySelectorAll('.terrain-btn[data-terrain]').forEach(b => b.classList.remove('active'));
+            // 同时清除 data-terrain 和 data-custom 按钮的高亮
+            document.querySelectorAll('.terrain-btn[data-terrain], .terrain-btn[data-custom]').forEach(b => b.classList.remove('active'));
         } else {
             State.activePlayTerrain = null;
             document.querySelectorAll('.terrain-btn[data-play-terrain]').forEach(b => b.classList.remove('active'));
@@ -305,7 +299,7 @@ const UI = {
         Renderer.drawBoard();
     },
 
-    // ========== 辅助方法：清除所有模式相关状态 ==========
+    // 辅助方法：清除所有模式相关状态
     clearModeStates() {
         State.holdingState = null;
         State.activeTerrain = null;
@@ -329,7 +323,6 @@ const UI = {
         this.clearSwapMode();
     },
 
-    // ========== 辅助方法：更新模式按钮UI（供恢复时使用） ==========
     updateModeUI(mode) {
         this.elements.modeButtons.forEach(btn => {
             if (btn.dataset.mode === mode) {
@@ -340,7 +333,6 @@ const UI = {
         });
     },
     
-    // ========== 原有方法（未修改，保留） ==========
     setModeDisplay(mode) {
         const el = this.elements;
         if (mode === 'layout') {
@@ -636,7 +628,6 @@ const UI = {
         }
     },
 
-    // ========== 击退和换位模式清除 ==========
     clearKnockbackMode() {
         State.knockbackMode = false;
         State.knockbackTargetPiece = null;
@@ -657,7 +648,6 @@ const UI = {
         Renderer.drawBoard();
     },
 
-    // ========== 提示消息 ==========
     showToast(message, duration = 1500) {
         if (State.toastTimeout) clearTimeout(State.toastTimeout);
         State.toastMessage = message;
@@ -668,51 +658,64 @@ const UI = {
         }, duration);
     },
 
-    // ========== 自定义地形弹窗 ==========
+    // ========== 自定义地形模态框（布局和推演共用） ==========
     showCustomTerrainModal() {
-        const label = prompt('输入自定义地形名称（1-3字）：');
-        if (!label || !label.trim()) return;
-        if (label.length > 3) {
-            alert('地形名称最多3个字');
-            return;
-        }
-        if (State.customTerrains.find(t => t.label === label.trim())) {
-            alert('该地形已存在');
-            return;
-        }
-        const bg = prompt('输入背景颜色（如 #ff0000）：', '#808080');
-        if (!bg) return;
-        const color = prompt('输入文字颜色（如 #ffffff）：', '#ffffff');
-        if (!color) return;
-        if (typeof Terrain !== 'undefined' && Terrain.addCustomButton) {
-            Terrain.addCustomButton(label.trim(), bg, color);
-        } else {
-            console.error('Terrain对象未定义或缺少addCustomButton方法');
-            this.showToast('系统错误，请刷新页面重试');
-        }
+        this.currentTerrainMode = 'layout';
+        this.elements.customTerrainModalTitle.textContent = '添加自定义地形';
+        this.elements.terrainName.value = '';
+        this.elements.terrainBgColor.value = '#808080';
+        this.elements.terrainTextColor.value = '#ffffff';
+        this.elements.customTerrainModal.style.display = 'flex';
     },
 
     showPlayCustomTerrainModal() {
-        const label = prompt('输入自定义标记名称（1-3字）：');
-        if (!label || !label.trim()) return;
-        if (label.length > 3) {
-            alert('标记名称最多3个字');
+        this.currentTerrainMode = 'play';
+        this.elements.customTerrainModalTitle.textContent = '添加自定义标记';
+        this.elements.terrainName.value = '';
+        this.elements.terrainBgColor.value = '#808080';
+        this.elements.terrainTextColor.value = '#ffffff';
+        this.elements.customTerrainModal.style.display = 'flex';
+    },
+
+    hideCustomTerrainModal() {
+        this.elements.customTerrainModal.style.display = 'none';
+    },
+
+    confirmCustomTerrain() {
+        const name = this.elements.terrainName.value.trim();
+        if (!name) {
+            this.showToast('请输入名称');
             return;
         }
-        if (State.customPlayTerrains && State.customPlayTerrains.find(t => t.label === label.trim())) {
-            alert('该标记已存在');
+        if (name.length > 3) {
+            this.showToast('名称最多3个字');
             return;
         }
-        const bg = prompt('输入背景颜色（如 #ff0000）：', '#808080');
-        if (!bg) return;
-        const color = prompt('输入文字颜色（如 #ffffff）：', '#ffffff');
-        if (!color) return;
-        if (typeof Terrain !== 'undefined' && typeof Terrain.addPlayCustomButton === 'function') {
-            Terrain.addPlayCustomButton(label.trim(), bg, color);
+        const bgColor = this.elements.terrainBgColor.value;
+        const textColor = this.elements.terrainTextColor.value;
+        
+        if (this.currentTerrainMode === 'layout') {
+            if (State.customTerrains && State.customTerrains.find(t => t.label === name)) {
+                this.showToast('该地形已存在');
+                return;
+            }
+            if (typeof Terrain !== 'undefined' && Terrain.addCustomButton) {
+                Terrain.addCustomButton(name, bgColor, textColor);
+            } else {
+                this.showToast('系统错误，请刷新页面重试');
+            }
         } else {
-            console.error('Terrain对象未定义或缺少addPlayCustomButton方法');
-            this.showToast('功能暂不可用，请检查控制台错误');
+            if (State.customPlayTerrains && State.customPlayTerrains.find(t => t.label === name)) {
+                this.showToast('该标记已存在');
+                return;
+            }
+            if (typeof Terrain !== 'undefined' && typeof Terrain.addPlayCustomButton === 'function') {
+                Terrain.addPlayCustomButton(name, bgColor, textColor);
+            } else {
+                this.showToast('功能暂不可用，请检查控制台错误');
+            }
         }
+        this.hideCustomTerrainModal();
     },
 
     escapeHtml(str) {

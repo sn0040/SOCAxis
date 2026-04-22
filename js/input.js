@@ -703,32 +703,36 @@ const Input = {
     },
     
     onCanvasClick(e) {
-        if (State.isViewingStep) {
-            UI.showToast('请先点击「返回当前步」退出查看模式');
+    if (State.isViewingStep) {
+        UI.showToast('请先点击「返回当前步」退出查看模式');
+        return;
+    }
+    e.stopPropagation();
+    
+    const clientX = e.clientX ?? (e.touches ? e.touches[0].clientX : 0);
+    const clientY = e.clientY ?? (e.touches ? e.touches[0].clientY : 0);
+    const pos = Input.getGridFromPixel(clientX, clientY);
+    if (!pos) return;
+    const { row, col } = pos;
+    
+    if (State.currentMode === 'layout') {
+        const clickedPiece = State.getPieceAt(row, col);
+        if (clickedPiece) {
             return;
+        } else if (State.holdingState) {
+            PiecePlacement.place(row, col);
+        } else {
+            Terrain.handleTerrainClick(row, col);
+            // 强制清除所有地形按钮的高亮（解决自定义按钮弹起问题）
+            document.querySelectorAll('.terrain-btn.active').forEach(btn => btn.classList.remove('active'));
         }
-        e.stopPropagation();
-        const clientX = e.clientX ?? (e.touches ? e.touches[0].clientX : 0);
-        const clientY = e.clientY ?? (e.touches ? e.touches[0].clientY : 0);
-        const pos = Input.getGridFromPixel(clientX, clientY);
-        if (!pos) return;
-        const { row, col } = pos;
-        if (State.currentMode === 'layout') {
-            const clickedPiece = State.getPieceAt(row, col);
-            if (clickedPiece) {
-                return;
-            } else if (State.holdingState) {
-                PiecePlacement.place(row, col);
-            } else {
-                Terrain.handleTerrainClick(row, col);
-            }
-        } else if (State.currentMode === 'play') {
-            const clickedPiece = State.getPieceAt(row, col);
-            if (clickedPiece) {
-                return;
-            } else {
-                Terrain.handleTerrainClick(row, col);
-            }
+    } else if (State.currentMode === 'play') {
+        const clickedPiece = State.getPieceAt(row, col);
+        if (clickedPiece) {
+            return;
+        } else {
+            Terrain.handleTerrainClick(row, col);
         }
     }
+}
 };

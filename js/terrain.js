@@ -75,10 +75,21 @@ const Terrain = {
             if (!State.activeTerrain) return false;
             if (State.holdingState) return false;
             
+            // 先绘制地形
             this.set(row, col, State.activeTerrain);
             
+            // 清空激活的地形类型
             State.activeTerrain = null;
-            document.querySelectorAll('.terrain-btn[data-terrain]').forEach(b => b.classList.remove('active'));
+            
+            // 使用多个延迟确保高亮被移除（避免重绘或事件冒泡重新添加）
+            const clearActive = () => {
+                const activeBtns = document.querySelectorAll('.terrain-btn.active');
+                activeBtns.forEach(btn => btn.classList.remove('active'));
+                if (activeBtns.length > 0) console.log('清除高亮', activeBtns.length);
+            };
+            setTimeout(clearActive, 0);
+            setTimeout(clearActive, 50);
+            setTimeout(clearActive, 100);
             
             return true;
             
@@ -89,7 +100,7 @@ const Terrain = {
             this.setPlayTerrain(row, col, State.activePlayTerrain);
             
             State.activePlayTerrain = null;
-            document.querySelectorAll('.terrain-btn[data-play-terrain]').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.terrain-btn[data-play-terrain]').forEach(btn => btn.classList.remove('active'));
             
             return true;
         }
@@ -107,14 +118,16 @@ const Terrain = {
         btn.setAttribute('data-custom', 'true');
         btn.innerHTML = `📌 ${label}`;
         
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // 清除所有布局地形按钮的高亮
+            document.querySelectorAll('.terrain-btn.active').forEach(b => b.classList.remove('active'));
             State.activeTerrain = { 
                 type: 'custom', 
                 label: label,
                 bg: bgColor || '#9c27b0',
                 color: textColor || '#fff'
             };
-            document.querySelectorAll('.terrain-btn[data-terrain]').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             console.log('自定义地形已激活:', State.activeTerrain);
         });
@@ -140,18 +153,15 @@ const Terrain = {
         btn.setAttribute('data-play-terrain', 'custom');
         btn.setAttribute('data-label', label);
         btn.innerHTML = `📌 ${label}`;
-        // 保留默认样式，不覆盖背景（若希望区分可取消注释）
-        // btn.style.background = bgColor || '#9c27b0';
-        // btn.style.color = textColor || '#fff';
         
         btn.addEventListener('click', () => {
+            document.querySelectorAll('.terrain-btn[data-play-terrain]').forEach(b => b.classList.remove('active'));
             State.activePlayTerrain = { 
                 type: 'custom', 
                 label: label,
                 bg: bgColor || '#9c27b0',
                 color: textColor || '#fff'
             };
-            document.querySelectorAll('.terrain-btn[data-play-terrain]').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             console.log('推演自定义标记已激活:', State.activePlayTerrain);
         });

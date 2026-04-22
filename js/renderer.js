@@ -76,7 +76,7 @@ const Renderer = {
             this.drawSpeedAdjustHint(ctx);
         }
         
-        // ========== 新增：高亮棋子 ==========
+        // 高亮棋子
         if (State.highlightedPiece) {
             const p = State.highlightedPiece;
             const x = p.col * State.cellW;
@@ -89,7 +89,7 @@ const Renderer = {
             ctx.restore();
         }
         
-        // ========== 新增：击退预览路径 ==========
+        // 击退预览路径
         if (State.knockbackPreviewPath && State.knockbackPreviewPath.length > 0) {
             ctx.save();
             ctx.setLineDash([5, 5]);
@@ -106,14 +106,13 @@ const Renderer = {
             ctx.restore();
         }
         
-        // ========== 新增：提示文字 ==========
+        // 提示文字
         if (State.toastMessage) {
             ctx.font = '24px "Segoe UI", "Microsoft YaHei", sans-serif';
             ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
             ctx.shadowBlur = 0;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            // 半透明背景
             const metrics = ctx.measureText(State.toastMessage);
             const textWidth = metrics.width;
             const textHeight = 36;
@@ -124,7 +123,6 @@ const Renderer = {
         }
     },
     
-    // 调速模式视觉提示 - 左上角闪烁
     drawSpeedAdjustHint(ctx) {
         if (!State.speedAdjustHintVisible) return;
         
@@ -187,12 +185,14 @@ const Renderer = {
                     terrainType = terrain.type;
                 }
                 
-                if (terrainType === 'water') bgColor = '#6ab0de';
+                // 优先级：自定义背景 > 固定地形颜色 > 默认
+                if (terrain && terrain.bg) {
+                    bgColor = terrain.bg;
+                } else if (terrainType === 'water') bgColor = '#6ab0de';
                 else if (terrainType === 'wall') bgColor = '#555555';
                 else if (terrainType === 'trap') bgColor = '#b87333';
                 else if (terrainType === 'box') bgColor = '#c9ae74';
                 else if (terrainType === 'custom') bgColor = '#9c27b0';
-                else if (terrain && terrain.bg) bgColor = terrain.bg;
                 
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(x, y, State.cellW, State.cellH);
@@ -214,6 +214,11 @@ const Renderer = {
     
     drawPlayTerrainIcon(ctx, terrain, x, y) {
         ctx.save();
+        // 如果是自定义标记且有背景色且非透明，先绘制整个格子的背景
+        if (terrain.type === 'custom' && terrain.bg && terrain.bg !== 'transparent') {
+            ctx.fillStyle = terrain.bg;
+            ctx.fillRect(x, y, State.cellW, State.cellH);
+        }
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         let fontSize = Math.min(State.cellW, State.cellH) * 0.45;
@@ -234,6 +239,8 @@ const Renderer = {
         } else if (terrain.type === 'custom') {
             ctx.fillStyle = terrain.color || '#fff';
             ctx.fillText(terrain.label, centerX, centerY);
+        } else {
+            ctx.fillText(terrain.label || '?', centerX, centerY);
         }
         ctx.restore();
     },

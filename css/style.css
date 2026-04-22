@@ -1034,3 +1034,29 @@ button.clear-btn {
         gap: 12px;
     }
 }
+/* 美化模态框内的输入框和下拉框 */
+.modal-input, .modal-select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background: #2a2a2a;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    box-sizing: border-box;
+}
+
+.modal-input:focus, .modal-select:focus {
+    border-color: #2c7da0;
+}
+
+.modal-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='white'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}

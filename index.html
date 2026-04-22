@@ -8,7 +8,7 @@
 </head>
 <body>
 <div class="app">
-    <!-- 新增：标题区域 -->
+    <!-- 标题区域 -->
     <div class="title-section">
         <h1 class="main-title">铃兰之剑排轴器</h1>
         <div class="subtitle-line">
@@ -32,11 +32,10 @@
                 <button id="loadBtn" class="save-load">读取棋盘</button>
             </div>
             
-            <!-- 棋盘容器（用于定位悬浮下拉框） -->
             <div class="canvas-container">
                 <canvas id="boardCanvas" width="500" height="500"></canvas>
                 
-                <!-- 角色选择下拉框 - 悬浮在棋盘上方 -->
+                <!-- 角色选择下拉框 -->
                 <div class="character-dropdown" id="charDropdown" style="display:none;">
                     <div class="dropdown-header">
                         <input type="text" class="search-input" placeholder="🔍 搜索角色(编号/名字)..." id="charSearch">
@@ -49,7 +48,6 @@
 
         <!-- 右侧面板 -->
         <div class="right-panel">
-            <!-- 阶段控制 - 始终显示 -->
             <div class="section phase-section">
                 <h3>⚙️ 阶段</h3>
                 <div class="mode-buttons">
@@ -58,11 +56,9 @@
                 </div>
             </div>
 
-            <!-- 动态内容区 -->
             <div id="dynamicContent">
                 <!-- 布局阶段内容 -->
                 <div id="layoutContent" class="phase-content">
-                    <!-- 棋子仓库 -->
                     <div class="section">
                         <h3>🎲 棋子仓库</h3>
                         <div class="pieces-selector">
@@ -83,7 +79,6 @@
                         <button id="removePieceLayoutBtn" class="btn-3d btn-remove" style="margin-top: 8px; width: 100%;">🗑️ 移除棋子</button>
                     </div>
 
-                    <!-- 地形绘制 -->
                     <div class="section">
                         <h3>⛰️ 地形绘制</h3>
                         <div class="terrain-tools" id="terrainTools">
@@ -100,16 +95,13 @@
 
                 <!-- 推演阶段内容 -->
                 <div id="playContent" class="phase-content" style="display:none;">
-                    <!-- 推演操作 -->
                     <div class="section">
                         <h3>🎮 推演操作</h3>
                         <div class="freehand-mode">
                             <input type="checkbox" id="freehandModeCheckbox">
                             <label for="freehandModeCheckbox">✏️ 手绘路径模式</label>
                         </div>
-                        <div class="info-text" id="modeHint">
-                            自动寻路模式：拖拽棋子到目标点
-                        </div>
+                        <div class="info-text" id="modeHint">自动寻路模式：拖拽棋子到目标点</div>
                         <div class="play-action-grid">
                             <button id="standbyBtn" class="btn-3d btn-standby">⏸️ 行动结束</button>
                             <button id="speedAdjustBtn" class="btn-3d btn-speed">⚡ 调速</button>
@@ -122,7 +114,6 @@
                         <div id="viewReturnArea" style="text-align: center; margin-top: 5px;"></div>
                     </div>
                     
-                    <!-- 推演地形标记 -->
                     <div class="section">
                         <h3>📝 地形标记</h3>
                         <div class="terrain-tools" id="playTerrainTools">
@@ -227,6 +218,57 @@
         <div class="modal-footer">
             <button class="btn-cancel" id="cancelCustom">取消</button>
             <button class="btn-confirm" id="confirmCustom">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- 自定义地形/标记弹窗（美化版） -->
+<div class="modal" id="customTerrainModal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="customTerrainModalTitle">添加自定义地形</h3>
+            <button class="close-modal" id="closeTerrainModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>地形/标记名称（1-3字）：</label>
+                <input type="text" id="terrainName" placeholder="例如：岩浆" maxlength="3" class="modal-input">
+            </div>
+            <div class="form-group">
+                <label>背景颜色：</label>
+                <select id="terrainBgColor" class="modal-select">
+                    <option value="transparent">透明（无背景）</option>
+                    <option value="#808080">灰色</option>
+                    <option value="#ff0000">红色</option>
+                    <option value="#00ff00">绿色</option>
+                    <option value="#0000ff">蓝色</option>
+                    <option value="#ffff00">黄色</option>
+                    <option value="#ff6600">橙色</option>
+                    <option value="#9c27b0">紫色</option>
+                    <option value="#00bcd4">青色</option>
+                    <option value="#e91e63">粉色</option>
+                    <option value="#795548">棕色</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>字体颜色：</label>
+                <select id="terrainTextColor" class="modal-select">
+                    <option value="#ffffff">白色</option>
+                    <option value="#000000">黑色</option>
+                    <option value="#ff0000">红色</option>
+                    <option value="#00ff00">绿色</option>
+                    <option value="#0000ff">蓝色</option>
+                    <option value="#ffff00">黄色</option>
+                    <option value="#ff6600">橙色</option>
+                    <option value="#9c27b0">紫色</option>
+                    <option value="#00bcd4">青色</option>
+                    <option value="#e91e63">粉色</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" id="cancelTerrainModal">取消</button>
+            <button class="btn-confirm" id="confirmTerrainModal">确定</button>
         </div>
     </div>
 </div>
