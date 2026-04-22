@@ -942,3 +942,95 @@ button.clear-btn {
     margin-bottom: 0 !important;    /* 最后一个按钮无下边距 */
 }
 
+/* ========== 主界面标题样式（无背景、单色、右对齐小字） ========== */
+.title-section {
+    text-align: center;
+    margin-bottom: 16px;
+    position: relative;
+    width: 100%;
+}
+
+.main-title {
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin: 0;
+    padding: 0;
+    color: #f5c542;                /* 单色金色 */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 8px rgba(0,0,0,0.3);
+    letter-spacing: 2px;
+    font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    display: inline-block;
+}
+
+.subtitle-line {
+    display: flex;
+    justify-content: flex-end;    /* 靠右对齐 */
+    gap: 16px;
+    margin-top: 6px;
+    font-size: 0.9rem;
+    color: #e0d6b0;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    font-weight: 500;
+    padding-right: 8px;
+}
+
+.subtitle-line span {
+    font-family: 'Segoe UI', '楷体', monospace;
+}
+
+/* 响应式 */
+@media (max-width: 700px) {
+    .main-title {
+        font-size: 1.8rem;
+    }
+    .subtitle-line {
+        font-size: 0.75rem;
+        gap: 12px;
+    }
+}
+/* 响应式设计 - 移动端优化 */
+@media (max-width: 700px) {
+    .app {
+        padding: 8px;
+    }
+    .container {
+        flex-direction: column;
+        padding: 12px;
+    }
+    /* 右侧面板：取消固定宽度，改为自适应 */
+    .right-panel {
+        width: 100%;
+        min-width: auto;
+        max-width: none;
+        padding: 12px;
+        box-sizing: border-box;
+    }
+    .team-btn {
+        min-height: 60px;
+    }
+    .team-icon {
+        font-size: 18px;
+    }
+    .team-label {
+        font-size: 11px;
+    }
+    .size-control button {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+    .size-control {
+        justify-content: center;
+    }
+    .character-dropdown {
+        width: 90%;
+        max-width: 260px;
+    }
+    /* 标题区域字体调整 */
+    .main-title {
+        font-size: 1.8rem;
+    }
+    .subtitle-line {
+        font-size: 0.75rem;
+        gap: 12px;
+    }
+}
